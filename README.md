@@ -8,7 +8,9 @@ This script enables a Git repository to push to GitHub by performing the followi
 
 Usage examples:
   - Run the script and provide all inputs interactively:
-    ./enable_git_push.sh
+
+    ```./enable_git_push.sh```
 
   - Run the script and provide the GitHub username, access token, and repository URL as arguments:
-    ./enable_git_push.sh <username> <access_token> <repository_url>
+
+    ```./enable_git_push.sh <username> <access_token> <repository_url>```
