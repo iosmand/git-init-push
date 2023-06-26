@@ -1,10 +1,8 @@
-Git Init Push Script
-====================
+# Git Init Push Script
 
 This Bash script enables a Git repository to push to GitHub by automating the initialization, file addition, commit, and remote configuration steps.
 
-Usage
------
+## Usage
 
 ### Running the script directly:
 
@@ -12,8 +10,12 @@ Usage
 
 If no arguments are provided, the script will prompt for the required information interactively. Make sure to provide the execute permission to the script using `chmod +x git-init-push.sh`.
 
+#### Follow these steps before using the script directly:
+
+1.  Copy the `git-init-push.sh` script to the directory where you want to initialize and push the repository.
+2.  Add the .gitignore file to not push the script by running this command `echo "git-init-push.sh" >> .gitignore`.
+
 ### Running as a Native Linux Command:
--------------------------------
 
 Give the script execute permissions and save the script in a directory listed in your system's `PATH` environment variable, such as `/usr/local/bin` or `~/bin` by running command `sudo chmod +x git-init-push.sh && sudo cp git-init-push.sh /usr/local/bin/git-init-push`.
 
@@ -23,8 +25,7 @@ After copying it, you can use the command `git-init-push` from anywhere in the t
 
 If no arguments are provided, the script will prompt for the required information interactively.
 
-Examples
---------
+## Examples
 
 ### Run the script directly:
 
@@ -36,15 +37,13 @@ Examples
 
 In both cases, replace `your_username` with your actual GitHub username, `your_access_token` with your GitHub access token, and `https://github.com/your_username/repo.git` with the appropriate repository URL.
 
-Requirements
-------------
+## Requirements
 
 *   **Bash:** You can install Bash using the package manager for your Linux distribution. For example, on Ubuntu, use the command:  
     `sudo apt-get install bash`
 *   **Git:** Install Git using your package manager. For example, on Ubuntu, use:  
     `sudo apt-get install git`
 
-License
--------
+## License
 
 This script is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html). See the [LICENSE](LICENSE) file for more details.
