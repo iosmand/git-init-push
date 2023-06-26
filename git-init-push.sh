@@ -1,67 +1,51 @@
 #!/bin/bash
 
-# Help message and usage examples
-help_message="
-Usage: enable_git_push.sh
+# Git Init Push Script
+# This Bash script enables a Git repository to push to GitHub by automating the initialization, file addition, commit, and remote configuration steps.
 
-This script enables a Git repository to push to GitHub by performing the following steps:
-  1. Initialize a new Git repository
-  2. Add files to the repository
-  3. Commit the changes
-  4. Add the remote repository URL
-  5. Push the local repository to GitHub
+# Check if the script has execute permission
+if [ ! -x "$0" ]; then
+  echo "Please make sure the script has execute permission."
+  exit 1
+fi
 
-Usage examples:
-  - Run the script and provide all inputs interactively:
-    ./enable_git_push.sh
+# Check if Git is installed
+if ! command -v git &> /dev/null; then
+  echo "Git is not installed. Please install it first."
+  exit 1
+fi
 
-  - Run the script and provide the GitHub username, access token, and repository URL as arguments:
-    ./enable_git_push.sh <username> <access_token> <repository_url>
-"
-
-# Check if help flag is provided
-if [[ "$1" == "--help" || "$1" == "-h" ]]; then
-  echo "$help_message"
+# Check if the user requested help
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+  echo -e "Usage: $0 [username] [access_token] [repository_url]\n\nThis Bash script enables a Git repository to push to GitHub by automating the initialization, file addition, commit, and remote configuration steps.\n\nIf no arguments are provided, the script will prompt for the required information interactively.\n\nExamples:\n./$0 your_username your_access_token https://github.com/your_username/repo.git\n$0 your_username your_access_token https://github.com/your_username/repo.git"
   exit 0
 fi
 
-# Prompt the user for their GitHub username
-if [[ -z "$1" ]]; then
-  read -p "Enter your GitHub username: " username
-else
-  username="$1"
+# Get the username, access token and repository URL from arguments or prompt
+username=${1:-$(read -p "Enter your GitHub username: " input && echo $input)}
+access_token=${2:-$(read -p "Enter your GitHub access token: " input && echo $input)}
+repository_url=${3:-$(read -p "Enter your GitHub repository URL: " input && echo $input)}
+
+# Validate the inputs
+if [ -z "$username" ] || [ -z "$access_token" ] || [ -z "$repository_url" ]; then
+  echo "Invalid inputs. Please provide valid username, access token and repository URL."
+  exit 1
 fi
 
-# Prompt the user for their GitHub access token
-if [[ -z "$2" ]]; then
-  read -s -p "Enter your GitHub access token: " access_token
-  echo
-else
-  access_token="$2"
-fi
-
-# Prompt the user for the repository URL
-if [[ -z "$3" ]]; then
-  read -p "Enter the GitHub repository URL: " repository_url
-else
-  repository_url="$3"
-fi
-
-# Initialize Git repository
+# Initialize the repository
 git init
 
-# Add files to the repository
+# Add all files to the staging area
 git add .
 
-# Commit the changes
-read -p "Enter the commit message: " commit_message
-git commit -m "$commit_message"
+# Commit with a default message
+git commit -m "Initial commit"
 
-# Add the remote repository URL
-git remote add origin "$repository_url"
+# Set the remote origin using the username, access token and repository URL
+git remote add origin https://$username:$access_token@$repository_url
 
-# Verify the remote repository
-git remote -v
+# Push to the remote origin
+git push -u origin master
 
-# Push the local repository to GitHub using the access token
-git push -u "$username":"$access_token" master
+# Print a success message
+echo "Successfully pushed to GitHub!"
