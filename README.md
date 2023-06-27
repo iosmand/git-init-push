@@ -1,48 +1,47 @@
-# Git Init Push Script
+# git-init-push
 
-This Bash script enables a Git repository to push to GitHub by automating the initialization, file addition, commit, and remote configuration steps.
+## Description
+
+This is a bash script that simplifies the process of initializing a Git repository, committing changes, and pushing them to a remote repository.
+
+## Installation
+
+To install the script, run the following command in your terminal:
+
+    curl -o git-init-push.sh https://raw.githubusercontent.com/iosmand/git-init-push/main/git-init-push.sh && chmod +x git-init-push.sh && sudo cp git-init-push.sh /usr/local/bin/git-init-push && rm git-init-push.sh
 
 ## Usage
 
-### Running the script directly:
+The script can be used with the following command line arguments:
 
-    ./git-init-push.sh [username] [access_token] [repository_url]
+    git-init-push -u [username] -r [repository_name] ( -t [access_token] | -k [deploy_key.pub] )
 
-If no arguments are provided, the script will prompt for the required information interactively. Make sure to provide the execute permission to the script using `chmod +x git-init-push.sh`.
+### Options:
 
-#### Follow these steps before using the script directly:
+- `-u [username]`: Specifies the username for the remote repository.
+- `-r [repository_name]`: Specifies the name of the repository.
+- `-t [access_token]`: Specifies the access token to authenticate with the remote repository.
+- `-k [deploy_key.pub]`: Specifies the path to the deploy key file for authentication.
+- `-s [github]`: Specifies the Git service (default: github).
+- `-d [destination_folder]`: Specifies the destination folder for the Git repository (default: current directory).
 
-1.  Copy the `git-init-push.sh` script to the directory where you want to initialize and push the repository.
-2.  Add the .gitignore file to not push the script by running this command `echo "git-init-push.sh" >> .gitignore`.
+### Examples:
 
-### Running as a Native Linux Command:
+Initialize a Git repository, commit changes, and push to a GitHub repository using an access token:
 
-Give the script execute permissions and save the script in a directory listed in your system's `PATH` environment variable, such as `/usr/local/bin` or `~/bin` by running command `sudo chmod +x git-init-push.sh && sudo cp git-init-push.sh /usr/local/bin/git-init-push`.
+    git-init-push -u your_username -r your_repository -t your_access_token
 
-After copying it, you can use the command `git-init-push` from anywhere in the terminal to execute the script.
+Initialize a Git repository, commit changes, and push to a GitHub repository using a deploy key:
 
-    git-init-push [username] [access_token] [repository_url]
+    git-init-push -u your_username -r your_repository -k path/to/deploy_key.pub
 
-If no arguments are provided, the script will prompt for the required information interactively.
+Initialize a Git repository, commit changes, and push to a Bitbucket repository:
 
-## Examples
+    git-init-push -u your_username -r your_repository -t your_access_token -s bitbucket
 
-### Run the script directly:
+Initialize a Git repository, commit changes, and push to a GitLab repository:
 
-    ./git-init-push.sh your_username your_access_token https://github.com/your_username/repo.git
-
-### Run the script as a native Linux command:
-
-    git-init-push your_username your_access_token https://github.com/your_username/repo.git
-
-In both cases, replace `your_username` with your actual GitHub username, `your_access_token` with your GitHub access token, and `https://github.com/your_username/repo.git` with the appropriate repository URL.
-
-## Requirements
-
-*   **Bash:** You can install Bash using the package manager for your Linux distribution. For example, on Ubuntu, use the command:  
-    `sudo apt-get install bash`
-*   **Git:** Install Git using your package manager. For example, on Ubuntu, use:  
-    `sudo apt-get install git`
+    git-init-push -u your_username -r your_repository -k path/to/deploy_key.pub -s gitlab
 
 ## License
 
