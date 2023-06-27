@@ -2,7 +2,7 @@
 
 ## Description
 
-This script initializes a Git repository, makes an initial commit, and pushes it to a remote repository. It provides options to set up the repository with a specific username, repository name, and authentication method (access token or deploy key).
+This script initializes a Git repository, makes an initial commit, and pushes it to a remote repository. It provides options to set up the repository with a specific username, repository name, and authentication method (access token or deploy key). It supports popular Git services like GitHub, GitLab, and Bitbucket.
 
 ## Installation
 
@@ -22,18 +22,18 @@ Once installed, you can run the script by typing `git-init-push` in the terminal
 - `-r [repository_name]`: Specifies the name of the remote repository.
 - `-t [access_token]`: Specifies the access token for authentication.
 - `-k [deploy_key.pub]`: Specifies the path to the deploy key public key file.
-- `-s [github]`: Specifies the Git service (currently only supports GitHub).
+- `-s [github]`: Specifies the Git service (supported services: github, gitlab, bitbucket) (default: github).
 - `-d [destination_folder]`: Specifies the destination folder for the Git repository (default: current directory).
 
 ### Examples
 
-Initialize and push a repository with an access token:
+Initialize and push a repository with an access token to GitHub:
 
-    git-init-push -u your_username -r your_repository -t YOUR_ACCESS_TOKEN
+    git-init-push -u your_username -r your_repository -t YOUR_ACCESS_TOKEN -s github
 
-Initialize and push a repository with a deploy key:
+Initialize and push a repository with a deploy key to GitLab:
 
-    git-init-push -u your_username -r your-repository -k PATH/TO/deploy_key.pub
+    git-init-push -u your_username -r your_repository -k PATH/TO/deploy_key.pub -s gitlab
 
 ## License
 
