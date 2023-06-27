@@ -1,24 +1,16 @@
 #!/bin/bash
 
 SCRIPT_NAME="git-init-push.sh"
-REQUIRED_PACKAGES=("git" "openssh-client")
-
-# Function to check if the script is executable
-check_executable() {
-    if [[ ! -x "$SCRIPT_NAME" ]]; then
-        echo "Error: The script '$SCRIPT_NAME' is not executable."
-        exit 1
-    fi
-}
+REQUIRED_PACKAGES=("git" "ssh-keygen")
 
 # Function to check if necessary options are provided
 check_options() {
-    local username=""
-    local repository_name=""
-    local access_token=""
-    local deploy_key=""
-    local service="github"
-    local destination_folder="."
+    username=""
+    repository_name=""
+    access_token=""
+    deploy_key=""
+    service="github"
+    destination_folder="."
 
     # Parse command line arguments
     while getopts ":u:r:t:k:s:d:" opt; do
