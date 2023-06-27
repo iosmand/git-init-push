@@ -2,46 +2,38 @@
 
 ## Description
 
-This is a bash script that simplifies the process of initializing a Git repository, committing changes, and pushing them to a remote repository.
+This script initializes a Git repository, makes an initial commit, and pushes it to a remote repository. It provides options to set up the repository with a specific username, repository name, and authentication method (access token or deploy key).
 
 ## Installation
 
-To install the script, run the following command in your terminal:
+To use this script, you can execute the following command:
 
     curl -o git-init-push.sh https://raw.githubusercontent.com/iosmand/git-init-push/main/git-init-push.sh && chmod +x git-init-push.sh && sudo cp git-init-push.sh /usr/local/bin/git-init-push && rm git-init-push.sh
 
+The command downloads the script, makes it executable, copies it to the `/usr/local/bin` directory (requires sudo access), and removes the downloaded script.
+
 ## Usage
 
-The script can be used with the following command line arguments:
+Once installed, you can run the script by typing `git-init-push` in the terminal, followed by the necessary options.
 
-    git-init-push -u [username] -r [repository_name] ( -t [access_token] | -k [deploy_key.pub] )
-
-### Options:
+### Options
 
 - `-u [username]`: Specifies the username for the remote repository.
-- `-r [repository_name]`: Specifies the name of the repository.
-- `-t [access_token]`: Specifies the access token to authenticate with the remote repository.
-- `-k [deploy_key.pub]`: Specifies the path to the deploy key file for authentication.
-- `-s [github]`: Specifies the Git service (default: github).
+- `-r [repository_name]`: Specifies the name of the remote repository.
+- `-t [access_token]`: Specifies the access token for authentication.
+- `-k [deploy_key.pub]`: Specifies the path to the deploy key public key file.
+- `-s [github]`: Specifies the Git service (currently only supports GitHub).
 - `-d [destination_folder]`: Specifies the destination folder for the Git repository (default: current directory).
 
-### Examples:
+### Examples
 
-Initialize a Git repository, commit changes, and push to a GitHub repository using an access token:
+Initialize and push a repository with an access token:
 
-    git-init-push -u your_username -r your_repository -t your_access_token
+    git-init-push -u your_username -r your_repository -t YOUR_ACCESS_TOKEN
 
-Initialize a Git repository, commit changes, and push to a GitHub repository using a deploy key:
+Initialize and push a repository with a deploy key:
 
-    git-init-push -u your_username -r your_repository -k path/to/deploy_key.pub
-
-Initialize a Git repository, commit changes, and push to a Bitbucket repository:
-
-    git-init-push -u your_username -r your_repository -t your_access_token -s bitbucket
-
-Initialize a Git repository, commit changes, and push to a GitLab repository:
-
-    git-init-push -u your_username -r your_repository -k path/to/deploy_key.pub -s gitlab
+    git-init-push -u your_username -r your-repository -k PATH/TO/deploy_key.pub
 
 ## License
 
