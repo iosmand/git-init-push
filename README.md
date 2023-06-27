@@ -6,7 +6,16 @@ This script initializes a Git repository, makes an initial commit, and pushes it
 
 ## Installation
 
-To use this script, you can execute the following command:
+### Prerequisites 
+
+The script will automatically install the following dependencies if they are missing:
+
+- Git
+- OpenSSH client (includes ssh-keygen)
+
+Once you run the script, it will check for the presence of these dependencies and install them if necessary.
+
+To install this script as a native command, you can execute the following command:
 
     curl -o git-init-push.sh https://raw.githubusercontent.com/iosmand/git-init-push/main/git-init-push.sh && chmod +x git-init-push.sh && sudo cp git-init-push.sh /usr/local/bin/git-init-push && rm git-init-push.sh
 
