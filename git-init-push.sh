@@ -5,12 +5,12 @@ REQUIRED_PACKAGES=("git" "ssh-keygen")
 
 # Function to check if necessary options are provided
 check_options() {
-    local username=""
-    local repository_name=""
-    local access_token=""
-    local deploy_key=""
-    local service="github"
-    local destination_folder="."
+    username=""
+    repository_name=""
+    access_token=""
+    deploy_key=""
+    service="github"
+    destination_folder="."
 
     # Parse command line arguments
     while getopts ":u:r:t:k:s:d:" opt; do
@@ -84,12 +84,12 @@ check_dependencies() {
 
 # Function to initialize git repository, commit, and push
 git_init_push() {
-    username=$1
-    repository_name=$2
-    access_token=$3
-    deploy_key=$4
-    service=$5
-    destination_folder=$6
+    local username=$1
+    local repository_name=$2
+    local access_token=$3
+    local deploy_key=$4
+    local service=$5
+    local destination_folder=$6
 
     # Check if git is already initialized in the destination directory
     if [[ ! -d $destination_folder/.git ]]; then
@@ -131,9 +131,6 @@ git_init_push() {
 }
 
 # Main script logic
-
-# Check if the script is executable
-check_executable
 
 # Check if necessary options are provided
 check_options "$@"
