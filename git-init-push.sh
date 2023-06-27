@@ -1,112 +1,149 @@
 #!/bin/bash
 
-# Usage: git-init-push -u [username] -r [repository_name] ( -t [access_token] | -k [deploy_key.pub] )
-# Optional entries: -s [github] -d [destination_folder]
+SCRIPT_NAME="git-init-push.sh"
+REQUIRED_PACKAGES=("git")
 
-# Parse the command line arguments
-while getopts u:r:t:k:s:d: option
-do
-case "${option}"
-in
-u) USER=${OPTARG};;
-r) REPO=${OPTARG};;
-t) TOKEN=${OPTARG};;
-k) KEY=${OPTARG};;
-s) SERVICE=${OPTARG};;
-d) DEST=${OPTARG};;
-esac
-done
-
-# Check if the user and repo arguments are provided
-if [[ -z $USER || -z $REPO ]]; then
-  echo "Usage: git-init-push -u [username] -r [repository_name] ( -t [access_token] | -k [deploy_key.pub] )"
-  echo "Optional entries: -s [github] -d [destination_folder]"
-  exit 1
-fi
-
-# Check if the token or key argument is provided and only one of them
-if [[ -z $TOKEN && -z $KEY ]]; then
-  echo "You must provide either an access token or a deploy key"
-  exit 1
-elif [[ -n $TOKEN && -n $KEY ]]; then
-  echo "You can only provide either an access token or a deploy key, not both"
-  exit 1
-fi
-
-# Set the default service to github if not provided
-if [[ -z $SERVICE ]]; then
-  SERVICE="github"
-fi
-
-# Set the default destination folder to the current directory if not provided
-if [[ -z $DEST ]]; then
-  DEST="."
-fi
-
-# Define a function to create a remote url based on the service and credentials
-create_remote_url () {
-  local service=$1
-  local user=$2
-  local token=$3
-  local key=$4
-  local repo=$5
-  local remote_url=""
-  if [[ $service == "github" ]]; then
-    if [[ -n $token ]]; then
-      remote_url="https://${token}@${user}@${service}.com/${user}/${repo}.git"
-    elif [[ -n $key ]]; then
-      remote_url="git@${service}.com:${user}/${repo}.git"
+# Function to check if the script is executable
+check_executable() {
+    if [[ ! -x "$SCRIPT_NAME" ]]; then
+        echo "Error: The script '$SCRIPT_NAME' is not executable."
+        exit 1
     fi
-  elif [[ $service == "bitbucket" ]]; then
-    if [[ -n $token ]]; then
-      remote_url="https://${user}:${token}@${service}.org/${user}/${repo}.git"
-    elif [[ -n $key ]]; then
-      remote_url="git@${service}.org:${user}/${repo}.git"
+}
+
+# Function to check if necessary options are provided
+check_options() {
+    local username=""
+    local repository_name=""
+    local access_token=""
+    local deploy_key=""
+    local service="github"
+    local destination_folder="."
+
+    # Parse command line arguments
+    while getopts ":u:r:t:k:s:d:" opt; do
+        case $opt in
+            u) username="$OPTARG" ;;
+            r) repository_name="$OPTARG" ;;
+            t) access_token="$OPTARG" ;;
+            k) deploy_key="$OPTARG" ;;
+            s) service="$OPTARG" ;;
+            d) destination_folder="$OPTARG" ;;
+            \?) echo "Invalid option -$OPTARG. Aborting."; exit 1 ;;
+        esac
+    done
+
+    # Check if username and repository_name are provided
+    if [[ -z $username || -z $repository_name ]]; then
+        echo "Error: Please provide a username (-u) and repository name (-r). Aborting."
+        exit 1
     fi
-  elif [[ $service == "gitlab" ]]; then
-    if [[ -n $token ]]; then
-      remote_url="https://${user}:${token}@${service}.com/${user}/${repo}.git"
-    elif [[ -n $key ]]; then
-      remote_url="git@${service}.com:${user}/${repo}.git"
-    fi  
-  else
-    echo "Unknown git service: ${service}"
-    exit 1  
-  fi  
-  echo $remote_url  
+
+    # Check if access_token or deploy_key is provided
+    if [[ -z $access_token && -z $deploy_key ]]; then
+        echo "Error: Please provide either an access token (-t) or a deploy key (-k). Aborting."
+        exit 1
+    fi
+
+    # Check if only one of access_token or deploy_key is provided
+    if [[ -n $access_token && -n $deploy_key ]]; then
+        echo "Error: Please provide only one of either an access token (-t) or a deploy key (-k). Aborting."
+        exit 1
+    fi
+
+    # Handle deploy_key option
+    if [[ -n $deploy_key ]]; then
+        if [[ $deploy_key == "create" ]]; then
+            echo "Creating deploy_key.pub..."
+            ssh-keygen -t rsa -b 4096 -N "" -f deploy_key || { echo "Failed to create deploy_key.pub. Aborting."; exit 1; }
+            cat deploy_key.pub
+            echo "Press any key to continue..."
+            read -r
+            deploy_key="deploy_key.pub"
+        elif [[ ! -f $deploy_key ]]; then
+            echo "Deploy key file not found: $deploy_key. Aborting."
+            exit 1
+        fi
+    fi
+
 }
 
-# Define a function to create a deploy key and display it on the screen
-create_deploy_key () {
-  local key=$1  
-  ssh-keygen -t rsa -b 4096 -C "${USER}@${SERVICE}.com" -f $key -N ""
-  echo "This is your deploy key. Copy and paste it to your git service."
-  cat $key.pub  
+# Function to check if dependent packages are installed and install if necessary
+check_dependencies() {
+    local missing_packages=()
+    for package in "${REQUIRED_PACKAGES[@]}"; do
+        if ! command -v "$package" >/dev/null 2>&1; then
+            missing_packages+=("$package")
+        fi
+    done
+
+    if [[ ${#missing_packages[@]} -gt 0 ]]; then
+        echo "Installing missing packages: ${missing_packages[*]}..."
+        if command -v apt-get >/dev/null 2>&1; then
+            sudo apt-get update && sudo apt-get install -y "${missing_packages[@]}" || { echo "Failed to install packages. Aborting."; exit 1; }
+        else
+            echo "Error: Package manager not found. Please install the required packages manually: ${missing_packages[*]}"
+            exit 1
+        fi
+    fi
 }
 
-# Define a function to initialize, commit and push a git repo 
-init_commit_push () {
-  local dest=$1  
-  local remote_url=$2  
-  cd $dest  
-  if [ ! -d ".git" ]; then # Check if git is not initialized in the destination directory  
-    git init # Initialize the git repo  
-    git add . # Add all files to the staging area  
-    git commit -m "Initial commit" # Commit the changes with a message  
-    git remote add origin $remote_url # Add the remote url as origin  
-    git push origin master # Push the changes to the master branch of the remote repo  
-  else # Check if git is already initialized in the destination directory  
-    git add . # Add all files to the staging area  
-    git commit -m "Update" # Commit the changes with a message  
-    git push origin master # Push the changes to the master branch of the remote repo  
-  fi  
+# Function to initialize git repository, commit, and push
+git_init_push() {
+    local username=$1
+    local repository_name=$2
+    local access_token=$3
+    local deploy_key=$4
+    local service=$5
+    local destination_folder=$6
+
+    # Check if git is already initialized in the destination directory
+    if [[ ! -d $destination_folder/.git ]]; then
+        # Initialize git repository
+        echo "Initializing git repository..."
+        git init "$destination_folder" || { echo "Failed to initialize git repository. Aborting."; exit 1; }
+    fi
+
+    # Configure git remote URL based on the service
+    case $service in
+        github) remote_url="git@github.com:$username/$repository_name.git" ;;
+        *) echo "Error: Unknown git service. Aborting."; exit 1 ;;
+    esac
+
+    # Add remote origin
+    git -C "$destination_folder" remote add origin "$remote_url" || { echo "Failed to add remote origin. Aborting."; exit 1; }
+
+    # Set deploy key or access token
+    if [[ -n $deploy_key ]]; then
+        # Set deploy key
+        echo "Setting deploy key..."
+        git -C "$destination_folder" config core.sshCommand "ssh -i $deploy_key"
+    elif [[ -n $access_token ]]; then
+        # Set access token
+        echo "Setting access token..."
+        git -C "$destination_folder" config http.extraheader "Authorization: Bearer $access_token"
+    fi
+
+    # Commit all files
+    git -C "$destination_folder" add . || { echo "Failed to add files to commit. Aborting."; exit 1; }
+    git -C "$destination_folder" commit -m "Initial commit" || { echo "Failed to commit files. Aborting."; exit 1; }
+
+    # Push to remote repository
+    git -C "$destination_folder" push -u origin master || { echo "Failed to push to remote repository. Aborting."; exit 1; }
+
+    echo "Git repository initialized, committed, and pushed successfully!"
 }
 
-# Main logic of the script
-if [[ -n $KEY ]]; then # Check if the key argument is provided  
-  create_deploy_key $KEY # Create a deploy key and display it on the screen  
-  read -p "Press any key to continue..." # Wait for a key press from the user  
-fi
+# Main script logic
 
-remote_url=$(create_remote_url $SERVICE $USER $TOKEN $KEY $REPO) # Create a remote url based on the service and credentials
-init_commit_push $DEST $remote_url # Initialize, commit and push a git repo
+# Check if the script is executable
+check_executable
+
+# Check if necessary options are provided
+check_options "$@"
+
+# Check and install dependencies if necessary
+check_dependencies
+
+# Call git_init_push function
+git_init_push "$username" "$repository_name" "$access_token" "$deploy_key" "$service" "$destination_folder"
