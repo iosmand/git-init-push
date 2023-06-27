@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_NAME="git-init-push.sh"
-REQUIRED_PACKAGES=("git")
+REQUIRED_PACKAGES=("git" "openssh-client")
 
 # Function to check if the script is executable
 check_executable() {
