@@ -52,9 +52,8 @@ check_options() {
             echo "Press any key to continue..."
             read -r
             deploy_key="deploy_key.pub"
-            echo "deploy_key" >> .gitignore
-            echo "deploy_key.pub" >> .gitignore
-            chmod 0600 deploy_key
+            echo "deploy_key" >> .gitignore && echo "deploy_key.pub" >> .gitignore            
+            chmod 0600 deploy_key && chmod 0600 deploy_key.pub
         elif [[ ! -f $deploy_key ]]; then
             echo "Deploy key file not found: $deploy_key. Aborting."
             exit 1
