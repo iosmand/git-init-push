@@ -107,6 +107,8 @@ git_init_push() {
     # Configure git remote URL based on the service
     case $service in
         github) remote_url="git@github.com:$username/$repository_name.git" ;;
+        gitlab) remote_url="git@gitlab.com:$username/$repository_name.git" ;;
+        bitbucket) remote_url="git@bitbucket.org:$username/$repository_name.git" ;;
         *) echo "Error: Unknown git service. Aborting."; exit 1 ;;
     esac
 
